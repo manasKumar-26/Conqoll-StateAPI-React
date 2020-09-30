@@ -2,32 +2,58 @@ import React from 'react';
 import Navbar from './Navbar';
 import PlaceList from './PlaceList';
 import { connect } from 'react-redux';
-import { fetchPlaces } from '../Action/places';
+import { fetchPlaces, ShowTab } from '../Action/places';
 class App extends React.Component {
   componentDidMount() {
     this.props.dispatch(fetchPlaces());
   }
+  ChangeTabs = (value) => {
+    this.props.dispatch(ShowTab(value));
+  };
+  favPlace = (place) => {
+    const { myfav } = this.props.States;
+    let index = myfav.indexOf(place);
+    if (index !== -1) {
+      return true;
+    }
+    return false;
+  };
   render() {
     const { mylist, myfav, isFav } = this.props.States;
-    console.log(mylist, myfav, isFav);
     const currentTab = isFav ? myfav : mylist;
     return (
       <div className="App">
         <Navbar />
-        <div className="tabContainer">
-          <div className="tab active-tabs">State-List</div>
-          <div className="tab">Favourites-List</div>
-        </div>
-        <div className="list">
-          <div className="state-card">
+        <div className="main">
+          <div className="tabs">
+            <div className="tabs">
+              <div
+                className={`tab ${isFav ? '' : 'active-tabs'}`}
+                onClick={() => this.ChangeTabs(false)}
+              >
+                Places
+              </div>
+              <div
+                className={`tab ${isFav ? 'active-tabs' : ''}`}
+                onClick={() => this.ChangeTabs(true)}
+              >
+                Favourites
+              </div>
+            </div>
+          </div>
+          <div className="list">
             {currentTab.map((place) => (
-              <PlaceList />
+              <PlaceList
+                place={place}
+                fav={this.favPlace(place)}
+                isFav={isFav}
+              />
             ))}
           </div>
+          {currentTab.length === 0 ? (
+            <div className="no-places">No Places Added to the tab</div>
+          ) : null}
         </div>
-        {currentTab.length === 0 ? (
-          <div className="no-places">No Places Added to the tab</div>
-        ) : null}
       </div>
     );
   }
